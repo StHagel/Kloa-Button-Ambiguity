@@ -95,7 +95,3 @@ print("Qwerty: " + str(100.0 * (1.0 - generic_prob_qwerty)) + "%\n")
 
 print("Ratio Qwerty/Kloa:")
 print(str((1.0 - generic_prob_qwerty) / (1.0 - generic_prob_kloa)))
-
-
-
-
