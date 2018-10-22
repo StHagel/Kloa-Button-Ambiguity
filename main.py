@@ -53,23 +53,31 @@ def thumb_sigma_y(size=DEFAULT_SIZE_Y):
     return np.sqrt(thumb_alpha_y * size**2 + thumb_sigma_a_y**2)
 
 
-def generic_propdist(x, y, size_x=DEFAULT_SIZE_X, size_y=DEFAULT_SIZE_Y):
+def cartesian_generic_probdist(x, y, size_x=DEFAULT_SIZE_X, size_y=DEFAULT_SIZE_Y):
     s_x = generic_sigma_x(size_x)
     s_y = generic_sigma_y(size_y)
     return np.exp(-0.5 * (x / s_x) ** 2 - 0.5 * (y / s_y) ** 2) / (2.0 * np.pi * s_x * s_y)
 
 
-def index_propdist(x, y, size_x=DEFAULT_SIZE_X, size_y=DEFAULT_SIZE_Y):
+def cartesian_index_probdist(x, y, size_x=DEFAULT_SIZE_X, size_y=DEFAULT_SIZE_Y):
     s_x = index_sigma_x(size_x)
     s_y = index_sigma_y(size_y)
     return np.exp(-0.5 * (x / s_x) ** 2 - 0.5 * (y / s_y) ** 2) / (2.0 * np.pi * s_x * s_y)
 
 
-def thumb_propdist(x, y, size_x=DEFAULT_SIZE_X, size_y=DEFAULT_SIZE_Y):
+def cartesian_thumb_probdist(x, y, size_x=DEFAULT_SIZE_X, size_y=DEFAULT_SIZE_Y):
     s_x = thumb_sigma_x(size_x)
     s_y = thumb_sigma_y(size_y)
     return np.exp(-0.5 * (x / s_x) ** 2 - 0.5 * (y / s_y) ** 2) / (2.0 * np.pi * s_x * s_y)
 
+
+def polar_generic_probdist(r, phi, size_x=DEFAULT_SIZE_X, size_y=DEFAULT_SIZE_Y):
+    return r * cartesian_generic_probdist(r * np.cos(phi), r * np.sin(phi), size_x, size_y)
+
+
+def int_probdist(r_low, r_up):
+    return dblquad(polar_generic_probdist, 0.0, 2.0 * np.pi,
+                   lambda r: r_low, lambda r: r_up, args=(size_x_qwerty, size_y_qwerty))[0]
 # These functions return the probability distruibution at the point (x,y) on a button of a given size under the
 # assumption that the sigmas in x an dy direction are not correlated and with mu_x and mu_y set to zero.
 
@@ -78,20 +86,33 @@ def thumb_propdist(x, y, size_x=DEFAULT_SIZE_X, size_y=DEFAULT_SIZE_Y):
 # respectively. The size of Kloas has been measured by hand from the printout, the qwerty keyboard used for reference
 # is the UK layout of the standard keyboard in Android 8.1.0 with Lineage OS 15.1 on a Google Nexus 5X phone.
 
-size_x_kloa = 11.0
-size_y_kloa = 11.0
-generic_prob_kloa = dblquad(generic_propdist, -size_y_kloa / 2.0, size_y_kloa / 2.0, lambda x: -size_x_kloa / 2.0,
-                            lambda x: size_x_kloa / 2.0, args=(size_x_kloa, size_y_kloa))[0]
+# size_x_kloa = 11.0
+# size_y_kloa = 11.0
+# generic_prob_kloa = dblquad(cartesian_generic_probdist, -size_y_kloa / 2.0, size_y_kloa / 2.0,
+#                             lambda x: -size_x_kloa / 2.0,
+#                             lambda x: size_x_kloa / 2.0, args=(size_x_kloa, size_y_kloa))[0]
 
 size_x_qwerty = 7.0
 size_y_qwerty = 8.0
-generic_prob_qwerty = dblquad(generic_propdist, -size_y_qwerty / 2.0, size_y_qwerty / 2.0,
-                              lambda x: -size_x_qwerty / 2.0, lambda x: size_x_qwerty / 2.0,
-                              args=(size_x_qwerty, size_y_qwerty))[0]
 
-print("Chance to miss the button:")
-print("Kloa: " + str(100.0 * (1.0 - generic_prob_kloa)) + "%")
-print("Qwerty: " + str(100.0 * (1.0 - generic_prob_qwerty)) + "%\n")
+r1 = size_x_qwerty / 2.0
+r2 = size_y_qwerty / 2.0
+r3 = np.sqrt(size_x_qwerty ** 2 + size_y_qwerty ** 2) / 2.0
+r4 = np.sqrt(size_x_qwerty ** 2 + (size_y_qwerty / 2.0) ** 2)
+r5 = 1.5 * size_x_qwerty
+r6 = 1.5 * size_y_qwerty
+# These are the distances from the center of the g-Button on a 26 letter keyboard to:
+#  - f and h (r1)
+#  - v, t and y (r2)
+#  - c and b (r3)
+#  - r and u (r4)
+#  - d and j (r5)
+#  - the upper end of the keyboard / the spacebar (r6)
 
-print("Ratio Qwerty/Kloa:")
-print(str((1.0 - generic_prob_qwerty) / (1.0 - generic_prob_kloa)))
+ambi = 1.0 * int_probdist(0, r1) + 3.0 * int_probdist(r1, r2) + 6.0 * int_probdist(r2, r3) \
+    + 8.0 * int_probdist(r3, r4) + 10.0 * int_probdist(r4, r5) + 12.0 * int_probdist(r5, r6)
+# We need to sum up all ambiguities and their respective probabilities
+
+print(str(ambi))
+
+
