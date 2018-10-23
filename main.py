@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.integrate import dblquad
+import matplotlib.pyplot as plt
 
 DEFAULT_SIZE_X = 0.0
 DEFAULT_SIZE_Y = 0.0
@@ -92,15 +93,19 @@ def int_probdist(r_low, r_up):
 #                             lambda x: -size_x_kloa / 2.0,
 #                             lambda x: size_x_kloa / 2.0, args=(size_x_kloa, size_y_kloa))[0]
 
-size_x_qwerty = 7.0
-size_y_qwerty = 8.0
+ratio = 8.0 / 7.0
 
-r1 = size_x_qwerty / 2.0
-r2 = size_y_qwerty / 2.0
-r3 = np.sqrt(size_x_qwerty ** 2 + size_y_qwerty ** 2) / 2.0
-r4 = np.sqrt(size_x_qwerty ** 2 + (size_y_qwerty / 2.0) ** 2)
-r5 = 1.5 * size_x_qwerty
-r6 = 1.5 * size_y_qwerty
+steps = np.arange(0.001, 20.01, 0.01)
+ambi = []
+for i in steps:
+    size_x_qwerty = i
+    size_y_qwerty = ratio * size_x_qwerty
+    r1 = size_x_qwerty / 2.0
+    r2 = size_y_qwerty / 2.0
+    r3 = np.sqrt(size_x_qwerty ** 2 + size_y_qwerty ** 2) / 2.0
+    r4 = np.sqrt(size_x_qwerty ** 2 + (size_y_qwerty / 2.0) ** 2)
+    r5 = 1.5 * size_x_qwerty
+    r6 = 1.5 * size_y_qwerty
 # These are the distances from the center of the g-Button on a 26 letter keyboard to:
 #  - f and h (r1)
 #  - v, t and y (r2)
@@ -108,11 +113,12 @@ r6 = 1.5 * size_y_qwerty
 #  - r and u (r4)
 #  - d and j (r5)
 #  - the upper end of the keyboard / the spacebar (r6)
-
-ambi = 1.0 * int_probdist(0, r1) + 3.0 * int_probdist(r1, r2) + 6.0 * int_probdist(r2, r3) \
-    + 8.0 * int_probdist(r3, r4) + 10.0 * int_probdist(r4, r5) + 12.0 * int_probdist(r5, r6)
+    ambi.append(1.0 * int_probdist(0, r1) + 3.0 * int_probdist(r1, r2) + 6.0 * int_probdist(r2, r3)
+                + 8.0 * int_probdist(r3, r4) + 10.0 * int_probdist(r4, r5) + 12.0 * int_probdist(r5, r6))
 # We need to sum up all ambiguities and their respective probabilities
 
-print(str(ambi))
+plt.ylabel('Ambiguity')
+plt.xlabel('Button size, x dimension (mm)')
+plt.plot(steps, ambi)
 
-
+plt.show()
