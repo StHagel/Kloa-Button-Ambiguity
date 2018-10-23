@@ -8,25 +8,9 @@ DEFAULT_SIZE_Y = 0.0
 # The default size of the buttons in x and y direction respectively, given in mm.
 
 generic_alpha_x = 0.0075
-index_alpha_x = 0.0075
-thumb_alpha_x = 0.0073
-
 generic_sigma_a_x = 1.296
-index_sigma_a_x = 1.241
-thumb_sigma_a_x = 1.349
-
 generic_alpha_y = 0.0108
-index_alpha_y = 0.0104
-thumb_alpha_y = 0.0113
-
 generic_sigma_a_y = 1.153
-index_sigma_a_y = 1.118
-thumb_sigma_a_y = 1.179
-
-alpha_x = [generic_alpha_x, index_alpha_x, thumb_alpha_x]
-sigma_a_x = [generic_sigma_a_x, index_sigma_a_x, thumb_sigma_a_x]
-alpha_y = [generic_alpha_y, index_alpha_y, thumb_alpha_y]
-sigma_a_y = [generic_sigma_a_y, index_sigma_a_y, thumb_sigma_a_y]
 # These are the values taken from the Google paper.
 
 
@@ -34,41 +18,13 @@ def generic_sigma_x(size=DEFAULT_SIZE_X):
     return np.sqrt(generic_alpha_x * size**2 + generic_sigma_a_x**2)
 
 
-def index_sigma_x(size=DEFAULT_SIZE_X):
-    return np.sqrt(index_alpha_x * size**2 + index_sigma_a_x**2)
-
-
-def thumb_sigma_x(size=DEFAULT_SIZE_X):
-    return np.sqrt(thumb_alpha_x * size**2 + thumb_sigma_a_x**2)
-
-
 def generic_sigma_y(size=DEFAULT_SIZE_Y):
     return np.sqrt(generic_alpha_y * size**2 + generic_sigma_a_y**2)
-
-
-def index_sigma_y(size=DEFAULT_SIZE_Y):
-    return np.sqrt(index_alpha_y * size**2 + index_sigma_a_y**2)
-
-
-def thumb_sigma_y(size=DEFAULT_SIZE_Y):
-    return np.sqrt(thumb_alpha_y * size**2 + thumb_sigma_a_y**2)
 
 
 def cartesian_generic_probdist(x, y, size_x=DEFAULT_SIZE_X, size_y=DEFAULT_SIZE_Y):
     s_x = 1.5 * generic_sigma_x(size_x)
     s_y = 1.5 * generic_sigma_y(size_y)
-    return np.exp(-0.5 * (x / s_x) ** 2 - 0.5 * (y / s_y) ** 2) / (2.0 * np.pi * s_x * s_y)
-
-
-def cartesian_index_probdist(x, y, size_x=DEFAULT_SIZE_X, size_y=DEFAULT_SIZE_Y):
-    s_x = index_sigma_x(size_x)
-    s_y = index_sigma_y(size_y)
-    return np.exp(-0.5 * (x / s_x) ** 2 - 0.5 * (y / s_y) ** 2) / (2.0 * np.pi * s_x * s_y)
-
-
-def cartesian_thumb_probdist(x, y, size_x=DEFAULT_SIZE_X, size_y=DEFAULT_SIZE_Y):
-    s_x = thumb_sigma_x(size_x)
-    s_y = thumb_sigma_y(size_y)
     return np.exp(-0.5 * (x / s_x) ** 2 - 0.5 * (y / s_y) ** 2) / (2.0 * np.pi * s_x * s_y)
 
 
@@ -128,19 +84,19 @@ ratio_kloa = 1.0
 
 ambi_kloa = []
 
-#for i in steps:
-#    size_x_kloa = i
-#    size_y_kloa = ratio_kloa * size_x_kloa
-#    r1 = size_x_kloa / 2.0
-#    r2 = size_x_kloa / np.sqrt(2.0)
-#    r3 = size_x_kloa * 1.0909
-    # Assuming a square-shape of the buttons, the calculation simplifies a lot! r3 is chosen to be comparable with r6 of
-    # the calculation above.
-#    ambi_kloa.append(3.0 * int_probdist_kloa(0, r1) + 10.0 * int_probdist_kloa(r1, r2)
+# for i in steps:
+#     size_x_kloa = i
+#     size_y_kloa = ratio_kloa * size_x_kloa
+#     r1 = size_x_kloa / 2.0
+#     r2 = size_x_kloa / np.sqrt(2.0)
+#     r3 = size_x_kloa * 1.0909
+# Assuming a square-shape of the buttons, the calculation simplifies a lot! r3 is chosen to be comparable with r6 of
+# the calculation above.
+#     ambi_kloa.append(3.0 * int_probdist_kloa(0, r1) + 10.0 * int_probdist_kloa(r1, r2)
 #                     + 14.0 * int_probdist_kloa(r2, r3))
-    # Here we assume to calculate the ambiguity of the letter e with an intrinsic ambiguity of 3. When reaching the
-    # letter t we also take into account the letters q and v, leading to an ambiguity of 6. When reaching the other
-    # buttons with two letters on them, we don't take into account the blue letters (b, k, p, x).
+# Here we assume to calculate the ambiguity of the letter e with an intrinsic ambiguity of 3. When reaching the
+# letter t we also take into account the letters q and v, leading to an ambiguity of 6. When reaching the other
+# buttons with two letters on them, we don't take into account the blue letters (b, k, p, x).
 
 # But how much bigger are the buttons in Kloa compared to QWERTY?
 
